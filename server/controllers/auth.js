@@ -28,11 +28,11 @@ export const signin = async (req, res, next) => {
         if(!user)
         return next(createError(404, "User not found!")); // User not found error message
 
-        const isCorrect = bcrypt.compare(req.body.password, user.password); // Comparing stored & readed password 
+        const isCorrect = await bcrypt.compare(req.body.password, user.password); // Comparing stored & readed password 
         if(!isCorrect)
         return next(createError(404, "Password doesn't match!")); // Password not match error message
 
-        const token = jwt.sign({id: User._id}, "process.env.JWT") // Creating token
+        const token = jwt.sign({id: user._id}, process.env.JWT) // Creating token
         const { password, ...others} = user._doc; // Prevent sending password & other info 
         
         res.cookie("access_token", token, { 
@@ -43,4 +43,4 @@ export const signin = async (req, res, next) => {
     } catch(err){
        next(err); // Error
     }
-}
+};
