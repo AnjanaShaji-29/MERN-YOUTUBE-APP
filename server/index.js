@@ -1,6 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import userRoutes from './routes/users.js';
+import videoRoutes from './routes/videos.js';
+import commentRoutes from './routes/comments.js';
+import authRoutes from './routes/auth.js';
 
 const app = express();
 dotenv.config();
@@ -14,6 +18,25 @@ const connect = () => {
         throw err; // Error
     });
 };
+
+app.use(express.json()); // Enabling json 
+
+app.use("/api/auth/", authRoutes); // Auth Routes
+app.use("/api/users/", userRoutes);  // User Routes
+app.use("/api/videos/", videoRoutes); // Video Routes 
+app.use("/api/comments/", commentRoutes); // Comment Routes
+
+
+app.use((err, req, res, next) => {
+    const status = err.status || 500;
+    const message = err.message || "Somwthing went wrong!";
+    return res.status(status).json({
+        success: false,
+        status,
+        message
+    })
+})
+
 
 app.listen(8800, () => {
     connect(); // Calling the mongodb connection method
