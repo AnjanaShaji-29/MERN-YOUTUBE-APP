@@ -87,7 +87,7 @@ export const random = async (req, res, next) =>{
 export const trend = async (req, res, next) =>{
     try{
         const videos = await Video.find().sort( { views: -1 } ); // Finding the videos having most views(-1) by sort method
-        res.status(200).json(videos); // Sending the trendind videos 
+        res.status(200).json(videos); // Sending the trending videos 
     } catch(err){
         next(err); // Error
     }
@@ -106,6 +106,33 @@ export const sub = async (req, res, next) =>{
 
       res.status(200). json(list.flat().sort((a,b) => b.createdAt - a.createdAt)); // Sending all newset (sort) subscribed videos & avoiding MD array by javascript flat
 
+    } catch(err){
+        next(err); // Error
+    }
+};
+
+
+export const getByTag = async (req, res, next) =>{
+
+    const tags = req.query.tags.split(","); // Reading all tags & Splitting them by ,
+    // console.log(tags);
+
+    try{
+        const videos = await Video.find({ tags: { $in : tags}}).limit(20); // Finding the videos by passing the tags & setting limit to 20
+        res.status(200).json(videos); // Sending the videos containing tags
+    } catch(err){
+        next(err); // Error
+    }
+};
+
+
+export const search = async (req, res, next) =>{
+
+    const query = req.query.q; // Reading the search keywords
+
+    try{
+        const videos = await Video.find({ title: { $regex: query, $options: "i"}}).limit(40) ; // Finding the videos by passing search query regardless of case sensitiveness
+        res.status(200).json(videos); // Sending the videos containing search text
     } catch(err){
         next(err); // Error
     }
