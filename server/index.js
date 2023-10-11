@@ -6,8 +6,13 @@ import videoRoutes from './routes/videos.js';
 import commentRoutes from './routes/comments.js';
 import authRoutes from './routes/auth.js';
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 const app = express();
+
+// Enable CORS for all routes
+app.use(cors());
+
 dotenv.config();
 
 const connect = () => {
@@ -31,7 +36,7 @@ app.use("/api/comments/", commentRoutes); // Comment Routes
 
 app.use((err, req, res, next) => {
     const status = err.status || 500;
-    const message = err.message || "Somwthing went wrong!";
+    const message = err.message || "Something went wrong!";
     return res.status(status).json({
         success: false,
         status,
