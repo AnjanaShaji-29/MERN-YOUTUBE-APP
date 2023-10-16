@@ -44,3 +44,35 @@ export const signin = async (req, res, next) => {
        next(err); // Error
     }
 };
+
+
+export const googleAuth = async (req, res, next) => {
+
+    try{
+        const user = await User.findOne({ email: req.body.email}); // Finding the user by email id
+        if(user){
+            const token = jwt.sign({id: user._id}, process.env.JWT) // Creating token
+
+            res.cookie("access_token", token, { 
+                httpOnly: true // Make more secure by blocking third party apps
+            }).status(200).json(user._doc); // Sending user details 
+    
+        } else{ // Creating new user
+            const newUser = new User({
+                ...req.body,
+                fromGoogle: true
+            })
+
+            const savedUser = await newUser.save(); // Saving the new user into DB
+
+            const token = jwt.sign({id: savedUser._id}, process.env.JWT) // Creating token
+
+            res.cookie("access_token", token, { 
+                httpOnly: true // Make more secure by blocking third party apps
+            }).status(200).json(savedUser._doc); // Sending user details 
+    
+        }
+    } catch(err){
+        next(err);
+    }
+}
