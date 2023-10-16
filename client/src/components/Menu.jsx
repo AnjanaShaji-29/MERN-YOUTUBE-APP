@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Youtubelogo from "../img/logo.png";
 import { AccountCircleOutlined, ArticleOutlined, ExploreOutlined, FlagOutlined, HelpOutlineOutlined, HistoryOutlined, Home, LibraryMusicOutlined, LiveTvOutlined, MovieOutlined, SettingsBrightnessOutlined, SettingsOutlined, SportsEsportsOutlined, SubscriptionsOutlined, VideoLibraryOutlined } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 
 const Container = styled.div`
@@ -74,6 +75,9 @@ const Title = styled.h2`
 `;
 
 export default function Menu({darkMode, setDarkMode}) {
+
+    const { currentUser } = useSelector(state=>state.user); // Accessing the currentUser from store 
+
   return (
     <Container>
     <Wrapper>
@@ -103,6 +107,8 @@ export default function Menu({darkMode, setDarkMode}) {
         <HistoryOutlined /> History
     </Item>
     <Hr />
+   { !currentUser &&
+    <> 
     <Login> Sign in to like videos, comment and subscribe.
       <Link to="/signin" style={{textDecoration: "none"}}>   <Button> <AccountCircleOutlined /> SIGN IN </Button> </Link>
     </Login>
@@ -123,7 +129,8 @@ export default function Menu({darkMode, setDarkMode}) {
     <Item>
         <LiveTvOutlined/> Live
     </Item>
-    <Hr />
+    <Hr /> 
+    </>}
     <Item>
         <SettingsOutlined /> Settings
     </Item>
