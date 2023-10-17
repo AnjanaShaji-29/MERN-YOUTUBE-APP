@@ -1,8 +1,13 @@
-import { AddTaskOutlined, ReplyOutlined, ThumbDownOffAltOutlined, ThumbUpOutlined } from '@mui/icons-material';
-import React from 'react';
+import { AddTaskOutlined, ReplyOutlined, ThumbDown, ThumbDownOffAltOutlined, ThumbUp, ThumbUpOutlined } from '@mui/icons-material';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from "react-redux";
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import Comments from '../components/Comments';
 import Card from '../components/Card';
+import axios from "axios";
+import { dislike, fetchSuccess, like } from '../redux/videoSlice';
+import {format} from "timeago.js";
 
 
 const Container = styled.div`
@@ -103,9 +108,47 @@ const Subscribe = styled.button`
 `;
 
 
-
 const Video = () => {
+  const { currentUser } = useSelector((state) => state.user);
+  const { currentVideo } = useSelector((state) => state.video);
+  const dispatch = useDispatch(); // To Call store actions
+
+  const path = useLocation().pathname.split("/")[2]; // useLocation refers to the current URL - finding the videoid by using split
+
+  const [channel, setChannel] = useState({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const videoRes = await axios.get(`/videos/find/${path}`); // Finding the video by passing the videoid
+        const channelRes = await axios.get(
+          `/users/find/${videoRes.data.userId}` // Finding the channel by passing the userid
+        );
+        
+        // console.log(videoRes.data)
+        // console.log(channelRes.data);
+
+        setChannel(channelRes.data); // Setting the Channel
+        dispatch(fetchSuccess(videoRes.data)); // Calling fetch success method by passing the video
+      } catch (err) {} // Error
+    };
+    fetchData(); // Calling the fetchData method
+   
+  }, [path, dispatch]); // Adding Dependency 
+
+
+  const handleLike = async () => {
+    await axios.put(`/users/like/${currentVideo._id}`);
+    dispatch(like(currentUser._id));
+  };
+
+  const handleDislike = async () => {
+    await axios.put(`/users/dislike/${currentVideo._id}`);
+    dispatch(dislike(currentUser._id));
+  };
+
   return (
+   
     <Container>
       <Content> 
         <VideoWrapper>
@@ -119,12 +162,19 @@ const Video = () => {
             allowfullscreen
           ></iframe>
         </VideoWrapper>
-        <Title> Test Video </Title>
+        <Title>{currentVideo.title}</Title>
         <Details>
-          <Info> 84,644 views  30 Jun 2022   </Info>
+          <Info> {currentVideo.views} views {format(currentVideo.createdAt)}   </Info>
           <Buttons>
-            <Button> <ThumbUpOutlined /> 123 </Button>
-            <Button> <ThumbDownOffAltOutlined /> Dislike </Button>
+            <Button onClick={handleLike}> 
+            { currentVideo.likes?.includes(currentUser._id) ? ( <ThumbUp />) 
+            : (<ThumbUpOutlined />) } {" "} 
+            {currentVideo.likes?.length} 
+            </Button>
+
+            <Button onClick={handleDislike}> 
+            {currentVideo.dislikes?.includes(currentUser._id) ? (<ThumbDown/>)
+             : (<ThumbDownOffAltOutlined />) } {" "}  Dislike </Button> 
             <Button> <ReplyOutlined /> Share </Button>
             <Button> <AddTaskOutlined/> Save </Button>
           </Buttons>
@@ -132,12 +182,11 @@ const Video = () => {
         <Hr />
         <Channel>
           <ChannelInfo>
-            <Image src="" />
+            <Image src={channel.img}/>
             <ChannelDetail>
-              <ChannelName> Web Dev </ChannelName>
-              <ChannelCounter> 200k  subscribers </ChannelCounter>
-              <ChannelDescription> Lorem ipsum dolor, sit amet consectectur dsffa xfbfb sfe
-              wdawd sdf seferse dffd sdfsgg sfhfh
+              <ChannelName> {channel.name}</ChannelName>
+              <ChannelCounter> {channel.subscribers} subscribers </ChannelCounter>
+              <ChannelDescription> {currentVideo.desc}
                </ChannelDescription>
             </ChannelDetail>
           </ChannelInfo>
@@ -146,13 +195,13 @@ const Video = () => {
         <Hr />
         <Comments />
       </Content>
-        <Recommendation> 
+        {/* <Recommendation> 
           <Card type="sm" />
           <Card type="sm" />
           <Card type="sm" />
           <Card type="sm" />
           <Card type="sm" />
-        </Recommendation>
+        </Recommendation> */}
     </Container>
   )
 }

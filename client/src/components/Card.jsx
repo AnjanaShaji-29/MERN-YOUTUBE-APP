@@ -63,7 +63,8 @@ const Card = ({ type, video }) => {
     };
     fetchChannel(); // Calling the fetchChannel function
   }, [video.userId]);  // Whenever userid changes it will render fetchChannel
- 
+
+  
   return (
     <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
       <Container type={type}>
