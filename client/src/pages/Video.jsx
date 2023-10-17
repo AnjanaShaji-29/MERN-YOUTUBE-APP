@@ -8,6 +8,7 @@ import Card from '../components/Card';
 import axios from "axios";
 import { dislike, fetchSuccess, like } from '../redux/videoSlice';
 import {format} from "timeago.js";
+import { subscription } from '../redux/userSlice';
 
 
 const Container = styled.div`
@@ -107,6 +108,12 @@ const Subscribe = styled.button`
   cursor: pointer;
 `;
 
+const VideoFrame = styled.video`
+  max-height: 720px;
+  width: 100%;
+  object-fit:cover;
+`;
+
 
 const Video = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -139,12 +146,19 @@ const Video = () => {
 
   const handleLike = async () => {
     await axios.put(`/users/like/${currentVideo._id}`);
-    dispatch(like(currentUser._id));
+    dispatch(like(currentUser._id)); // Calling like by passing userid
   };
 
   const handleDislike = async () => {
-    await axios.put(`/users/dislike/${currentVideo._id}`);
-    dispatch(dislike(currentUser._id));
+    await axios.put(`/users/dislike/${currentVideo._id}`); 
+    dispatch(dislike(currentUser._id)); // Calling dislike by passing userid
+  };
+
+  const handleSub = async() => {
+    currentUser.subscribedUsers.includes(channel._id) ? 
+    await axios.put(`/users/unsub/${channel._id}`) : //  If aleady subscribed, go to unsub route
+    await axios.put(`/users/sub/${channel._id}`) //  If not subscribed yet, go to sub route
+    dispatch(subscription(channel._id)); // Calling subscription by passing channel id
   };
 
   return (
@@ -152,15 +166,7 @@ const Video = () => {
     <Container>
       <Content> 
         <VideoWrapper>
-        <iframe
-            width="100%"
-            height="500"
-            src="https://www.youtube.com/embed/k3Vfj-e1Ma4"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-          ></iframe>
+         <VideoFrame src={currentVideo.videoUrl} />
         </VideoWrapper>
         <Title>{currentVideo.title}</Title>
         <Details>
@@ -190,10 +196,12 @@ const Video = () => {
                </ChannelDescription>
             </ChannelDetail>
           </ChannelInfo>
-          <Subscribe> SUBSCRIBE </Subscribe>
+          <Subscribe onClick={handleSub}>
+           {currentUser.subscribedUsers?.includes(channel._id) ? "SUBSCRIBED" : "SUBSCRIBE"}
+            </Subscribe>
         </Channel>
         <Hr />
-        <Comments />
+        <Comments videoId={currentVideo._id} />
       </Content>
         {/* <Recommendation> 
           <Card type="sm" />
