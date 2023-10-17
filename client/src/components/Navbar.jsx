@@ -1,8 +1,9 @@
-import { AccountCircleOutlined, SearchOutlined, VideoCallOutlined } from '@mui/icons-material';
-import React from 'react';
+import { AccountCircleOutlined, SearchOutlined, SettingsInputComponent, VideoCallOutlined } from '@mui/icons-material';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import Upload from './Upload';
 
 const Container = styled.div`
   position: sticky;
@@ -70,9 +71,12 @@ const Avatar = styled.img`
 
 export const Navbar = () => {
 
+  const [open, setOpen]= useState(false);
+
   const { currentUser } = useSelector(state=>state.user); // Accessing the currentUser from store 
   // const currentUser = useSelector(state=>state.user.currentUser);
   return (
+    <> 
     <Container>
       <Wrapper>
         <Search> 
@@ -81,7 +85,7 @@ export const Navbar = () => {
         </Search>
        {currentUser ? (
         <User>
-          <VideoCallOutlined />
+          <VideoCallOutlined onClick={()=> setOpen(true)}/>
           <Avatar src={currentUser.img} />
           {currentUser.name}
         </User>
@@ -89,7 +93,8 @@ export const Navbar = () => {
          <Button> <AccountCircleOutlined /> SIGN IN </Button>
          </Link>) }
       </Wrapper>
-
     </Container>
+        {open && <Upload setOpen={setOpen} />}
+    </>
   )
 }
