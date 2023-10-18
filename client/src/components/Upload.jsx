@@ -28,6 +28,7 @@ const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 20px;
+    z-index: 2;
 `;
 
 const Close = styled.div`

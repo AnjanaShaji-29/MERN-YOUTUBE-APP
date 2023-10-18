@@ -86,9 +86,11 @@ export default function Menu({darkMode, setDarkMode}) {
         <Img src={Youtubelogo} /> Youtube
     </Logo>
     </Link>
+    <Link to="/" style={{ textDecoration: "none", color: "inherit"}}> 
     <Item>
       <Home/> Home
     </Item>
+    </Link>
     <Link to="trends" style={{textDecoration: "none", color: "inherit"}}> 
     <Item>
     <ExploreOutlined /> Explore
